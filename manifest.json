@@ -1,0 +1,18 @@
+{
+
+  "manifest_version": 2,
+  "name": "cricinfo-tweakss",
+  "version": "1.0",
+
+  "description": "Adds graphs to Cricinfo stats.",
+
+  "content_scripts": [
+    {
+      "matches": ["*://www.espncricinfo.com/player/*"],
+      "js": ["chart.umd.min.js", "cricinfo_graph_tweaks.js"],
+      "run_at": "document_end"
+    }
+  ]
+
+}
+
