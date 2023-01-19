@@ -1,6 +1,6 @@
 console.log("hello there this is working!");
 
-class VsTeamRow {
+class DataRow {
     constructor(name, matches, runs, average, balls_faced) {
         this.name = name;
         this.matches = parseInt(matches);
@@ -61,7 +61,8 @@ function getVsTeamData(heading) {
     for (const row of table.rows) {
         const cols = row.cells;
         console.log(cols[0].innerText, cols[5].innerText, cols[6].innerText, cols[7].innerText);
-        const dataRow = new VsTeamRow(
+        // This is standard across batting tables.
+        const dataRow = new DataRow(
             cols[0].innerText, // Team Name
             cols[2].innerText, // Num Matches
             cols[5].innerText, // Runs
@@ -75,32 +76,40 @@ function getVsTeamData(heading) {
 }
 
 function main() {
-    let h5 = null;
+    let headersToMatch = ["vs Team", "In Host Country", "in Continent", "Home vs Away", "By Year", "By Season"];
 
-    for (const h of document.querySelectorAll("h5")) {
-        if (h.textContent.includes("vs Team")) {
-            console.log(h.textContent);
-            h5 = h;
-            break;
+    // Get the matching text headings.
+    let textHeadings = [];
+    for (const heading of document.querySelectorAll("h5")) {
+        if (headersToMatch.includes(heading.textContent)) {
+            console.log(heading.textContent);
+            textHeadings.push(heading);
         }
     }
 
-    let graph = null;
-    let showingGraph = false;
 
-    if (h5) {
-        let data = getVsTeamData(h5);
+    let graph = Object.assign(...headersToMatch.map(k => ({ [k]: null })));
+    console.log(graph);
+    let showingGraph = Object.assign(...headersToMatch.map(k => ({ [k]: false })));
+
+    for (const textHeading of textHeadings) {
+        console.log(textHeading);
+        let data = getVsTeamData(textHeading);
+        console.log(data);
 
         const deactivateButton = document.createElement("button");
         deactivateButton.innerHTML = "Hide graph";
-        deactivateButton.onclick = function() { 
-            if (showingGraph) {
-                graph.remove();
-                showingGraph = false;
+        deactivateButton.onclick = function() {
+            const category = textHeading.textContent;
+            console.log(category, showingGraph[category]);
+            if (showingGraph[category]) {
+                graph[category].remove();
+                graph[category] = null;
+                showingGraph[category] = false;
             }
         }
         deactivateButton.style = "padding-left: 8px;";
-        h5.parentNode.insertBefore(deactivateButton, h5.nextSibling);
+        textHeading.parentNode.insertBefore(deactivateButton, textHeading.nextSibling);
 
         const labels = data.map(element => element.name);
         for (const type of ["runs", "matches", "average"]) {
@@ -108,14 +117,16 @@ function main() {
             console.log(typeData);
             const activateButton = document.createElement("button");
             activateButton.innerHTML = "Show " + type + " graph";
-            activateButton.onclick = function() { 
-                if (!showingGraph) {
-                    graph = createGraphElement(deactivateButton, labels, typeData);
-                    showingGraph = true;
+            activateButton.onclick = function() {
+                const category = textHeading.textContent;
+                console.log(category, showingGraph[category]);
+                if (!showingGraph[category]) {
+                    graph[category] = createGraphElement(deactivateButton, labels, typeData);
+                    showingGraph[category] = true;
                 }
             }
             activateButton.style = "padding-left: 8px; padding-right: 8px;";
-            h5.parentNode.insertBefore(activateButton, h5.nextSibling);
+            textHeading.parentNode.insertBefore(activateButton, textHeading.nextSibling);
         }
     }
 }
