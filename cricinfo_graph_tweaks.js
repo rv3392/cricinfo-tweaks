@@ -75,15 +75,25 @@ function getVsTeamData(heading) {
     return teams;
 }
 
+function increaseHeadingSize(heading) {
+    const newHeading = document.createElement("h2");
+    newHeading.className = "ds-font-bold";
+    newHeading.style = "font-size: var(--font-size-text-base); line-height: 1.3; padding: 12px;";
+    newHeading.textContent = heading.textContent;
+    heading.parentNode.replaceChild(newHeading, heading);
+    return newHeading;
+}
+
 function main() {
     let headersToMatch = ["vs Team", "In Host Country", "in Continent", "Home vs Away", "By Year", "By Season"];
 
     // Get the matching text headings.
     let textHeadings = [];
     for (const heading of document.querySelectorAll("h5")) {
+        const largerHeading = increaseHeadingSize(heading);
         if (headersToMatch.includes(heading.textContent)) {
             console.log(heading.textContent);
-            textHeadings.push(heading);
+            textHeadings.push(largerHeading);
         }
     }
 
