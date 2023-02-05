@@ -1,6 +1,6 @@
 console.log("hello there this is working!");
 
-class DataRow {
+class BattingDataRow {
     constructor(name, matches, runs, average, balls_faced) {
         this.name = name;
         this.matches = parseInt(matches);
@@ -12,12 +12,12 @@ class DataRow {
 
 // Main graphing functions
 
-function createGraphElement(node, labels, data) {
+function createGraphElement(node, category, labels, data) {
     console.log(labels);
     const dataset = {
         labels: labels,
         datasets: [{
-            label: "Player vs Team",
+            label: category,
             data: data,
             backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',
@@ -56,7 +56,7 @@ function createGraphElement(node, labels, data) {
     return element;
 }
 
-function getVsTeamData(heading) {
+function getBattingData(heading) {
     const table = heading.parentNode.querySelector("tbody");
     console.log(table);
     let teams = [];
@@ -64,14 +64,14 @@ function getVsTeamData(heading) {
         const cols = row.cells;
         console.log(cols[0].innerText, cols[5].innerText, cols[6].innerText, cols[7].innerText);
         // This is standard across batting tables.
-        const dataRow = new DataRow(
+        const battingDataRow = new BattingDataRow(
             cols[0].innerText, // Team Name
             cols[2].innerText, // Num Matches
             cols[5].innerText, // Runs
             cols[7].innerText, // Avg
             cols[8].innerText  // HS
         );
-        teams.push(dataRow);
+        teams.push(battingDataRow);
     }
 
     return teams;
@@ -88,26 +88,25 @@ function increaseHeadingSize(heading) {
 
 function main() {
     console.log("running main");
-    let headersToMatch = ["vs Team", "In Host Country", "in Continent", "Home vs Away", "By Year", "By Season"];
+    let headingsToMatch = ["vs Team", "In Host Country", "in Continent", "Home vs Away", "By Year", "By Season"];
 
     // Get the matching text headings.
     let textHeadings = [];
     for (const heading of document.querySelectorAll("h5")) {
         const largerHeading = increaseHeadingSize(heading);
-        if (headersToMatch.includes(heading.textContent)) {
+        if (headingsToMatch.includes(heading.textContent)) {
             console.log(heading.textContent);
             textHeadings.push(largerHeading);
         }
     }
 
-
-    let graph = Object.assign(...headersToMatch.map(k => ({ [k]: null })));
+    let graph = Object.assign(...headingsToMatch.map(k => ({ [k]: null })));
     console.log(graph);
-    let showingGraph = Object.assign(...headersToMatch.map(k => ({ [k]: false })));
+    let showingGraph = Object.assign(...headingsToMatch.map(k => ({ [k]: false })));
 
     for (const textHeading of textHeadings) {
         console.log(textHeading);
-        let data = getVsTeamData(textHeading);
+        let data = getBattingData(textHeading);
         console.log(data);
 
         const deactivateButton = document.createElement("button");
@@ -134,7 +133,7 @@ function main() {
                 const category = textHeading.textContent;
                 console.log(category, showingGraph[category]);
                 if (!showingGraph[category]) {
-                    graph[category] = createGraphElement(deactivateButton, labels, typeData);
+                    graph[category] = createGraphElement(deactivateButton, category, labels, typeData);
                     showingGraph[category] = true;
                 }
             }
