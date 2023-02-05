@@ -10,6 +10,8 @@ class DataRow {
     }
 }
 
+// Main graphing functions
+
 function createGraphElement(node, labels, data) {
     console.log(labels);
     const dataset = {
@@ -85,6 +87,7 @@ function increaseHeadingSize(heading) {
 }
 
 function main() {
+    console.log("running main");
     let headersToMatch = ["vs Team", "In Host Country", "in Continent", "Home vs Away", "By Year", "By Season"];
 
     // Get the matching text headings.
@@ -140,5 +143,74 @@ function main() {
         }
     }
 }
+
+// Helper functions for loading/reloading the extension.
+
+function onRemove(element, onDetachCallback) {
+    const observer = new MutationObserver(function () {
+        function isDetached(el) {
+            if (el.parentNode === document) {
+                return false;
+            } else if (el.parentNode === null) {
+                return true;
+            } else {
+                return isDetached(el.parentNode);
+            }
+        }
+
+        if (isDetached(element)) {
+            observer.disconnect();
+            onDetachCallback();
+        }
+    })
+
+    observer.observe(document, {
+         childList: true,
+         subtree: true
+    });
+}
+
+// Check if the format dropdown or the stats discipline dropdown (bowling, batting, etc.)
+// have been closed. If they have then the main function has to be re-run to inject the
+// required scripts again.
+var x = new MutationObserver(function (e) {
+    for (const mutation of e) {
+        for (const added of mutation.addedNodes) {
+            // Just reload when we see an id containing "tippy-" i.e. any
+            // dropdown. There seems to be different "tippy numbers" used depending
+            // on exactly which route the user took to get there. Sometimes tippy-12
+            // and tippy-13 are used other times it's tippy-39 and tippy-40. These
+            // numbers could also change in the future. While doing this isn't ideal,
+            // it's the best that can be done and shouldn't have any negative impacts.
+            if (added.id.includes("tippy-")) {
+                onRemove(added, main);
+            }
+        }
+    }
+});
+x.observe(document.body, { childList: true });
+
+// FIXME: This probably isn't the best way to do this.
+//
+// Since cricinfo is some sort of SPA the URL changes aren't always captured
+// correctly by the Addon APIs. This means that if a player's page is
+// navigated to through the homepage the script will not be run or injected
+// correctly if trying to match the "bowling-batting-stats" page directly.
+//
+// Instead, we inject the script for any pages in the www.espncricinfo.com/cricketers/ 
+// tree and check if the current URL is ever changed to include "bowing-batting-stats"
+// (or the stats page). If it is, run the main function again.
+//
+// This is pretty hacky but it works for now.
+let lastUrl = location.href; 
+new MutationObserver(() => {
+  const url = location.href;
+  if (url !== lastUrl) {
+    lastUrl = url;
+    if (location.href.includes("://www.espncricinfo.com/cricketers/") && location.href.includes("/bowling-batting-stats")) {
+        main();
+    }
+  }
+}).observe(document, {subtree: true, childList: true});
 
 main();
