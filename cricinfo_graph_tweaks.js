@@ -10,6 +10,63 @@ class BattingDataRow {
     }
 }
 
+class BowlingDataRow {
+    constructor(name, matches, runs, wickets, average, economy, strike_rate) {
+        this.name = name;
+        this.matches = parseInt(matches);
+        this.runs = parseInt(runs);
+        this.wickets = parseInt(wickets);
+        this.average = parseFloat(average);
+        this.economy = parseFloat(economy);
+        this.strikerate = parseFloat(strike_rate);
+    }
+}
+
+class FieldingDataRow {
+    constructor(name, matches, dismissals, catches, stumpings) {
+        this.name = name;
+        this.matches = parseInt(matches);
+        this.dismissals = parseInt(dismissals);
+        this.catches = parseInt(catches);
+        this.stumpings = parseFloat(stumpings);
+    }
+}
+
+const BATTING_GRAPH_STATS = ["runs", "matches", "average"]
+const BOWLING_GRAPH_STATS = ["wickets", "average", "economy", "strikerate"]
+const FIELDING_GRAPH_STATS = ["dismissals", "catches", "stumpings"]
+class Discipline {
+    constructor() {
+        this.current = "";
+    }
+
+    getCurrentDiscipline(document) {
+        let disciplines = ["Batting", "Bowling", "Fielding"]
+        for (const span of document.querySelectorAll("span")) {
+            if (disciplines.includes(span.textContent) &&
+                    span.className == "ds-text-tight-m ds-font-regular ds-text-typo") {
+                console.log("Current format:", span.textContent);
+                this.current = span.textContent
+                return;
+            }
+        }
+
+        this.current = "";
+    }
+
+    getStatsToGraph() {
+        if (this.current == "Batting") {
+            return BATTING_GRAPH_STATS;
+        } else if (this.current == "Bowling") {
+            return BOWLING_GRAPH_STATS;
+        } else if (this.current == "Fielding") {
+            return FIELDING_GRAPH_STATS;
+        }
+
+        return ["Format Not Supported!"]
+    }
+}
+
 // Main graphing functions
 
 function createGraphElement(node, category, labels, data) {
@@ -77,6 +134,48 @@ function getBattingData(heading) {
     return teams;
 }
 
+function getBowlingData(heading) {
+    const table = heading.parentNode.querySelector("tbody");
+    console.log(table);
+    let teams = [];
+    for (const row of table.rows) {
+        const cols = row.cells;
+        // This is standard across bowling tables.
+        const bowlingDataRow = new BowlingDataRow(
+            cols[0].innerText,  // Team Name
+            cols[2].innerText,  // Num Matches
+            cols[6].innerText,  // Runs
+            cols[7].innerText,  // Wickets
+            cols[9].innerText,  // Average
+            cols[10].innerText, // Economy
+            cols[11].innerText  // Strike Rate
+        );
+        teams.push(bowlingDataRow);
+    }
+
+    return teams;
+}
+
+function getFieldingData(heading) {
+    const table = heading.parentNode.querySelector("tbody");
+    console.log(table);
+    let teams = [];
+    for (const row of table.rows) {
+        const cols = row.cells;
+        // This is standard across fielding tables.
+        const fieldingDataRow = new FieldingDataRow(
+            cols[0].innerText,  // Team Name
+            cols[2].innerText,  // Num Matches
+            cols[4].innerText,  // Dismissals
+            cols[5].innerText,  // Catches
+            cols[6].innerText,  // Stumpings
+        );
+        teams.push(fieldingDataRow);
+    }
+
+    return teams;
+}
+
 function increaseHeadingSize(heading) {
     const newHeading = document.createElement("h2");
     newHeading.className = "ds-font-bold";
@@ -85,6 +184,13 @@ function increaseHeadingSize(heading) {
     heading.parentNode.replaceChild(newHeading, heading);
     return newHeading;
 }
+
+// Global (script-level) variable to track which discipline is currently
+// selected. This is updated by the onRemove function when a "tippy"
+// dropdown for the discipline is removed.
+// FIXME: Remove this by redesigning a little bit. This is very ugly.
+let discipline = new Discipline();
+discipline.getCurrentDiscipline(document);
 
 function main() {
     console.log("running main");
@@ -106,7 +212,18 @@ function main() {
 
     for (const textHeading of textHeadings) {
         console.log(textHeading);
-        let data = getBattingData(textHeading);
+
+        let data = []
+        if (discipline.current == "Batting") {
+            data = getBattingData(textHeading);
+        } else if (discipline.current == "Bowling") {
+            data = getBowlingData(textHeading);
+        } else if (discipline.current == "Fielding") {
+            data = getFieldingData(textHeading);
+        } else {
+            // Invalid selection. Do nothing.
+            return;
+        }
         console.log(data);
 
         const deactivateButton = document.createElement("button");
@@ -124,7 +241,7 @@ function main() {
         textHeading.parentNode.insertBefore(deactivateButton, textHeading.nextSibling);
 
         const labels = data.map(element => element.name);
-        for (const type of ["runs", "matches", "average"]) {
+        for (const type of discipline.getStatsToGraph()) {
             const typeData = data.map(element => element[type]);
             console.log(typeData);
             const activateButton = document.createElement("button");
@@ -159,7 +276,11 @@ function onRemove(element, onDetachCallback) {
 
         if (isDetached(element)) {
             observer.disconnect();
-            onDetachCallback();
+            // Wait because there's a race condition somewhere.
+            setTimeout(() => {
+                discipline.getCurrentDiscipline(document);
+                onDetachCallback();
+            }, 200);
         }
     })
 
