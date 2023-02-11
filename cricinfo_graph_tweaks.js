@@ -122,7 +122,18 @@ function updateGraphElement(chart, labels, data) {
     chart.update();
 }
 
+function getColumnOffset(heading) {
+    const tableHeader = heading.parentNode.querySelector("thead");
+    for (const cell of tableHeader.rows[0].cells) {
+        if (cell.innerText == "Span") {
+            return 0;
+        }
+    }
+    return -1;
+}
+
 function getBattingData(heading) {
+    const offset = getColumnOffset(heading);
     const table = heading.parentNode.querySelector("tbody");
     console.log(table);
     let teams = [];
@@ -132,10 +143,10 @@ function getBattingData(heading) {
         // This is standard across batting tables.
         const battingDataRow = new BattingDataRow(
             cols[0].innerText, // Team Name
-            cols[2].innerText, // Num Matches
-            cols[5].innerText, // Runs
-            cols[7].innerText, // Avg
-            cols[8].innerText  // HS
+            cols[2 + offset].innerText, // Num Matches
+            cols[5 + offset].innerText, // Runs
+            cols[7 + offset].innerText, // Avg
+            cols[8 + offset].innerText  // HS
         );
         teams.push(battingDataRow);
     }
@@ -144,6 +155,8 @@ function getBattingData(heading) {
 }
 
 function getBowlingData(heading) {
+    const offset = getColumnOffset(heading);
+    console.log(offset);
     const table = heading.parentNode.querySelector("tbody");
     console.log(table);
     let teams = [];
@@ -152,12 +165,12 @@ function getBowlingData(heading) {
         // This is standard across bowling tables.
         const bowlingDataRow = new BowlingDataRow(
             cols[0].innerText,  // Team Name
-            cols[2].innerText,  // Num Matches
-            cols[6].innerText,  // Runs
-            cols[7].innerText,  // Wickets
-            cols[9].innerText,  // Average
-            cols[10].innerText, // Economy
-            cols[11].innerText  // Strike Rate
+            cols[2 + offset].innerText,  // Num Matches
+            cols[6 + offset].innerText,  // Runs
+            cols[7 + offset].innerText,  // Wickets
+            cols[9 + offset].innerText,  // Average
+            cols[10 + offset].innerText, // Economy
+            cols[11 + offset].innerText  // Strike Rate
         );
         teams.push(bowlingDataRow);
     }
@@ -166,6 +179,7 @@ function getBowlingData(heading) {
 }
 
 function getFieldingData(heading) {
+    const offset = getColumnOffset(heading);
     const table = heading.parentNode.querySelector("tbody");
     console.log(table);
     let teams = [];
@@ -174,10 +188,10 @@ function getFieldingData(heading) {
         // This is standard across fielding tables.
         const fieldingDataRow = new FieldingDataRow(
             cols[0].innerText,  // Team Name
-            cols[2].innerText,  // Num Matches
-            cols[4].innerText,  // Dismissals
-            cols[5].innerText,  // Catches
-            cols[6].innerText,  // Stumpings
+            cols[2 + offset].innerText,  // Num Matches
+            cols[4 + offset].innerText,  // Dismissals
+            cols[5 + offset].innerText,  // Catches
+            cols[6 + offset].innerText,  // Stumpings
         );
         teams.push(fieldingDataRow);
     }
