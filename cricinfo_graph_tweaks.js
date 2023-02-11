@@ -69,9 +69,8 @@ class Discipline {
 
 // Main graphing functions
 
-function createGraphElement(node, category, labels, data) {
-    console.log(labels);
-    const dataset = {
+function createDatasetFromData(category, labels, data) {
+    return {
         labels: labels,
         datasets: [{
             label: category,
@@ -97,20 +96,30 @@ function createGraphElement(node, category, labels, data) {
             borderWidth: 1
         }]
     };
+}
 
-    const element = node.parentNode.insertBefore(document.createElement("canvas"), node.nextSibling);
-    const chart = new Chart(element.getContext("2d"), {
+function createGraphElement(canvas, dataset) {
+    console.log("creating graph");
+    console.log(dataset);
+    const chart = new Chart(canvas.getContext("2d"), {
         type: "bar",
         data: dataset,
         options: {
             scales: {
-              y: {
-                beginAtZero: true
-              }
+                y: {
+                    beginAtZero: true
+                }
             }
-          },
-      });
-    return element;
+        },
+    });
+    return chart;
+}
+
+function updateGraphElement(chart, labels, data) {
+    chart.data.labels = labels
+    chart.data.datasets[0].data = data
+    console.log("updated with", labels, data);
+    chart.update();
 }
 
 function getBattingData(heading) {
@@ -179,10 +188,61 @@ function getFieldingData(heading) {
 function increaseHeadingSize(heading) {
     const newHeading = document.createElement("h2");
     newHeading.className = "ds-font-bold";
-    newHeading.style = "font-size: var(--font-size-text-base); line-height: 1.3; padding: 12px;";
+    newHeading.style = "font-size: var(--font-size-text-base); line-height: 1.3; padding-top: 12px; padding-left: 8px;";
     newHeading.textContent = heading.textContent;
     heading.parentNode.replaceChild(newHeading, heading);
     return newHeading;
+}
+
+function createGraphExpansionCard(category, labels, data) {
+    console.log("creating panel");
+    const expansionCard = document.createElement("div");
+
+    const expandButtonDiv = document.createElement("div");
+    const expandButton = document.createElement("button");
+    expandButton.innerHTML = "<h3>+ Graph</h3>";
+    expandButton.style = "margin-left: 8px;";
+    expandButtonDiv.style = "border: 1px solid rgb(237, 238, 240); cursor: pointer;"
+    expandButtonDiv.appendChild(expandButton);
+
+    const dataset = createDatasetFromData(category, labels, []);
+    const graphCanvas = document.createElement("canvas");
+    const chart = createGraphElement(graphCanvas, dataset);
+
+    console.log("created chart");
+
+    const graphPanel = document.createElement("div");
+    for (const type of discipline.getStatsToGraph()) {
+        const typeData = data.map(element => element[type]);
+        console.log(data);
+        console.log(typeData);
+        const activateButton = document.createElement("button");
+        activateButton.innerHTML = type;
+        activateButton.className = "ds-inline-flex ds-items-center ds-rounded-3xl ds-border ds-h-6  ds-bg-ui-fill ds-text-typo ds-border-ui-stroke ds-cursor-pointer ds-pl-3 ds-pr-3 hover:ds-bg-ui-fill-hover hover:ds-border-ui-stroke-hover focus:ds-bg-ui-fill-hover focus:ds-border-ui-stroke-hover active:ds-bg-ui-fill-primary active:ds-border-ui-stroke-primary active:ds-text-typo-inverse1 ds-mr-2 ds-whitespace-nowrap";
+        activateButton.onclick = function() {
+            updateGraphElement(chart, labels, typeData);
+        }
+        graphPanel.appendChild(activateButton);
+    }
+    graphPanel.style = "margin: 8px;";
+
+    graphPanel.style.display = "none";
+    graphPanel.appendChild(graphCanvas);
+
+    expandButtonDiv.onclick = function() {
+        if (expandButton.innerHTML == "<h3>+ Graph</h3>") {
+            expandButton.innerHTML = "<h3>- Graph</h3>";
+            graphPanel.style.display = "block";
+        } else if (expandButton.innerHTML == "<h3>- Graph</h3>") {
+            expandButton.innerHTML = "<h3>+ Graph</h3>";
+            graphPanel.style.display = "none";
+        }
+    }
+
+    expansionCard.appendChild(expandButtonDiv);
+    expansionCard.appendChild(graphPanel);
+    expansionCard.style = "margin: 4px; border: 1px solid rgb(237, 238, 240);"
+    return expansionCard;
 }
 
 // Global (script-level) variable to track which discipline is currently
@@ -206,10 +266,6 @@ function main() {
         }
     }
 
-    let graph = Object.assign(...headingsToMatch.map(k => ({ [k]: null })));
-    console.log(graph);
-    let showingGraph = Object.assign(...headingsToMatch.map(k => ({ [k]: false })));
-
     for (const textHeading of textHeadings) {
         console.log(textHeading);
 
@@ -225,38 +281,9 @@ function main() {
             return;
         }
         console.log(data);
-
-        const deactivateButton = document.createElement("button");
-        deactivateButton.innerHTML = "Hide graph";
-        deactivateButton.onclick = function() {
-            const category = textHeading.textContent;
-            console.log(category, showingGraph[category]);
-            if (showingGraph[category]) {
-                graph[category].remove();
-                graph[category] = null;
-                showingGraph[category] = false;
-            }
-        }
-        deactivateButton.style = "padding-left: 8px;";
-        textHeading.parentNode.insertBefore(deactivateButton, textHeading.nextSibling);
-
         const labels = data.map(element => element.name);
-        for (const type of discipline.getStatsToGraph()) {
-            const typeData = data.map(element => element[type]);
-            console.log(typeData);
-            const activateButton = document.createElement("button");
-            activateButton.innerHTML = "Show " + type + " graph";
-            activateButton.onclick = function() {
-                const category = textHeading.textContent;
-                console.log(category, showingGraph[category]);
-                if (!showingGraph[category]) {
-                    graph[category] = createGraphElement(deactivateButton, category, labels, typeData);
-                    showingGraph[category] = true;
-                }
-            }
-            activateButton.style = "padding-left: 8px; padding-right: 8px;";
-            textHeading.parentNode.insertBefore(activateButton, textHeading.nextSibling);
-        }
+        const graphExpansionCard = createGraphExpansionCard(textHeading.textContent, labels, data);
+        textHeading.parentNode.insertBefore(graphExpansionCard, textHeading.nextSibling);
     }
 }
 
