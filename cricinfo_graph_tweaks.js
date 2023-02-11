@@ -1,12 +1,14 @@
 console.log("hello there this is working!");
 
 class BattingDataRow {
-    constructor(name, matches, runs, average, balls_faced) {
+    constructor(name, matches, runs, average, balls_faced, strikerate, hundreds) {
         this.name = name;
         this.matches = parseInt(matches);
         this.runs = parseInt(runs);
         this.average = parseFloat(average);
         this.balls_faced = parseInt(balls_faced);
+        this.strikerate = parseFloat(strikerate);
+        this.hundreds = parseFloat(hundreds);
     }
 }
 
@@ -32,7 +34,7 @@ class FieldingDataRow {
     }
 }
 
-const BATTING_GRAPH_STATS = ["runs", "matches", "average"]
+const BATTING_GRAPH_STATS = ["runs", "matches", "average", "strikerate", "hundreds"]
 const BOWLING_GRAPH_STATS = ["wickets", "average", "economy", "strikerate"]
 const FIELDING_GRAPH_STATS = ["dismissals", "catches", "stumpings"]
 class Discipline {
@@ -146,7 +148,9 @@ function getBattingData(heading) {
             cols[2 + offset].innerText, // Num Matches
             cols[5 + offset].innerText, // Runs
             cols[7 + offset].innerText, // Avg
-            cols[8 + offset].innerText  // HS
+            cols[8 + offset].innerText, // BF
+            cols[9 + offset].innerText, // Strikerate
+            cols[10 + offset].innerText // Hundreds
         );
         teams.push(battingDataRow);
     }
@@ -168,9 +172,9 @@ function getBowlingData(heading) {
             cols[2 + offset].innerText,  // Num Matches
             cols[6 + offset].innerText,  // Runs
             cols[7 + offset].innerText,  // Wickets
-            cols[9 + offset].innerText,  // Average
-            cols[10 + offset].innerText, // Economy
-            cols[11 + offset].innerText  // Strike Rate
+            cols[10 + offset].innerText,  // Average
+            cols[11 + offset].innerText, // Economy
+            cols[12 + offset].innerText  // Strike Rate
         );
         teams.push(bowlingDataRow);
     }
