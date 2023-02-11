@@ -6,11 +6,6 @@
 
   "description": "Adds graphs to Cricinfo stats.",
 
-  "permissions": [
-    "webRequest",
-    "history"
-  ],
-
   "content_scripts": [
     {
       "matches": [
