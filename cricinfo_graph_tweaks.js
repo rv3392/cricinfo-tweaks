@@ -235,7 +235,7 @@ function createGraphExpansionCard(category, labels, data) {
         console.log(data);
         console.log(typeData);
         const activateButton = document.createElement("button");
-        activateButton.innerHTML = type;
+        activateButton.textContent = type;
         activateButton.className = "ds-inline-flex ds-items-center ds-rounded-3xl ds-border ds-h-6  ds-bg-ui-fill ds-text-typo ds-border-ui-stroke ds-cursor-pointer ds-pl-3 ds-pr-3 hover:ds-bg-ui-fill-hover hover:ds-border-ui-stroke-hover focus:ds-bg-ui-fill-hover focus:ds-border-ui-stroke-hover active:ds-bg-ui-fill-primary active:ds-border-ui-stroke-primary active:ds-text-typo-inverse1 ds-mr-2 ds-whitespace-nowrap";
         activateButton.onclick = function() {
             updateGraphElement(chart, labels, typeData);

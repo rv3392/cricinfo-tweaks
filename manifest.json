@@ -1,7 +1,7 @@
 {
 
   "manifest_version": 2,
-  "name": "cricinfo-tweakss",
+  "name": "cricinfo-tweaks",
   "version": "1.0",
 
   "description": "Adds graphs to Cricinfo stats.",
@@ -16,7 +16,13 @@
       "run_at": "document_end",
       "all_frames": true
     }
-  ]
+  ],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "update_url": "https://raw.githubusercontent.com/rv3392/cricinfo-tweaks/master/updates.json"
+    }
+  }
 
 }
 
