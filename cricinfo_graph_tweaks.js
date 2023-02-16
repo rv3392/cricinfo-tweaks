@@ -124,18 +124,25 @@ function updateGraphElement(chart, labels, data) {
     chart.update();
 }
 
-function getColumnOffset(heading) {
-    const tableHeader = heading.parentNode.querySelector("thead");
-    for (const cell of tableHeader.rows[0].cells) {
-        if (cell.innerText == "Span") {
-            return 0;
-        }
+const ROW_NAME = "ROW_NAME";
+function getColumnByName(searchName, colNames, row) {
+    if (searchName == ROW_NAME) {
+        return row[0].innerText;
     }
-    return -1;
+
+    const idx = colNames.indexOf(searchName);
+    console.log(searchName, idx);
+    if (idx == -1) {
+        return "0"; // Not an ideal error value.
+    }
+
+    return row[idx].innerText;
 }
 
 function getBattingData(heading) {
-    const offset = getColumnOffset(heading);
+    const tableHeader = heading.parentNode.querySelector("thead");
+    let colNames = Array.from(tableHeader.rows[0].cells).map(x => x.innerText);
+    console.log(colNames);
     const table = heading.parentNode.querySelector("tbody");
     console.log(table);
     let teams = [];
@@ -143,14 +150,16 @@ function getBattingData(heading) {
         const cols = row.cells;
         console.log(cols[0].innerText, cols[5].innerText, cols[6].innerText, cols[7].innerText);
         // This is standard across batting tables.
+        // TODO: Create a new constructor that takes a list of stats
+        // This would allow the stats parsing to be more extensible.
         const battingDataRow = new BattingDataRow(
-            cols[0].innerText, // Team Name
-            cols[2 + offset].innerText, // Num Matches
-            cols[5 + offset].innerText, // Runs
-            cols[7 + offset].innerText, // Avg
-            cols[8 + offset].innerText, // BF
-            cols[9 + offset].innerText, // Strikerate
-            cols[10 + offset].innerText // Hundreds
+            getColumnByName(ROW_NAME, colNames, cols), // Team Name
+            getColumnByName("Mat", colNames, cols), // Num Matches
+            getColumnByName("Runs", colNames, cols), // Runs
+            getColumnByName("Avg", colNames, cols), // Avg
+            getColumnByName("BF", colNames, cols), // BF
+            getColumnByName("SR", colNames, cols), // Strikerate
+            getColumnByName("100s", colNames, cols) // Hundreds
         );
         teams.push(battingDataRow);
     }
@@ -159,8 +168,9 @@ function getBattingData(heading) {
 }
 
 function getBowlingData(heading) {
-    const offset = getColumnOffset(heading);
-    console.log(offset);
+    const tableHeader = heading.parentNode.querySelector("thead");
+    let colNames = Array.from(tableHeader.rows[0].cells).map(x => x.innerText);
+    console.log(colNames);
     const table = heading.parentNode.querySelector("tbody");
     console.log(table);
     let teams = [];
@@ -168,13 +178,13 @@ function getBowlingData(heading) {
         const cols = row.cells;
         // This is standard across bowling tables.
         const bowlingDataRow = new BowlingDataRow(
-            cols[0].innerText,  // Team Name
-            cols[2 + offset].innerText,  // Num Matches
-            cols[6 + offset].innerText,  // Runs
-            cols[7 + offset].innerText,  // Wickets
-            cols[10 + offset].innerText,  // Average
-            cols[11 + offset].innerText, // Economy
-            cols[12 + offset].innerText  // Strike Rate
+            getColumnByName(ROW_NAME, colNames, cols),  // Team Name
+            getColumnByName("Mat", colNames, cols),  // Num Matches
+            getColumnByName("Runs", colNames, cols),  // Runs
+            getColumnByName("Wkts", colNames, cols),  // Wickets
+            getColumnByName("Avg", colNames, cols),  // Average
+            getColumnByName("Econ", colNames, cols), // Economy
+            getColumnByName("SR", colNames, cols)  // Strike Rate
         );
         teams.push(bowlingDataRow);
     }
@@ -183,7 +193,9 @@ function getBowlingData(heading) {
 }
 
 function getFieldingData(heading) {
-    const offset = getColumnOffset(heading);
+    const tableHeader = heading.parentNode.querySelector("thead");
+    let colNames = Array.from(tableHeader.rows[0].cells).map(x => x.innerText);
+    console.log(colNames);
     const table = heading.parentNode.querySelector("tbody");
     console.log(table);
     let teams = [];
@@ -191,11 +203,11 @@ function getFieldingData(heading) {
         const cols = row.cells;
         // This is standard across fielding tables.
         const fieldingDataRow = new FieldingDataRow(
-            cols[0].innerText,  // Team Name
-            cols[2 + offset].innerText,  // Num Matches
-            cols[4 + offset].innerText,  // Dismissals
-            cols[5 + offset].innerText,  // Catches
-            cols[6 + offset].innerText,  // Stumpings
+            getColumnByName(ROW_NAME, colNames, cols),  // Team Name
+            getColumnByName("Mat", colNames, cols),  // Num Matches
+            getColumnByName("Dis", colNames, cols),  // Dismissals
+            getColumnByName("Ct", colNames, cols),  // Catches
+            getColumnByName("St", colNames, cols),  // Stumpings
         );
         teams.push(fieldingDataRow);
     }
