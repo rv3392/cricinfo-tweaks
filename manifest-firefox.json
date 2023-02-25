@@ -1,0 +1,29 @@
+{
+
+  "manifest_version": 3,
+  "name": "cricinfo-tweaks",
+  "version": "1.3",
+
+  "description": "Adds graphs to Cricinfo stats.",
+
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.espncricinfo.com/cricketers",
+        "*://www.espncricinfo.com/cricketers/*"
+      ],
+      "js": ["chart.umd.min.js", "cricinfo_graph_tweaks.js"],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{7db26041-730b-4f29-aec1-4260d2c921ff}",
+      "update_url": "https://raw.githubusercontent.com/rv3392/cricinfo-tweaks/master/updates.json"
+    }
+  }
+
+}
+
