@@ -15,13 +15,13 @@ firefox: clean
 	cp manifest-firefox.json "${BUILD_DIR}"/manifest.json
 	cp cricinfo_graph_tweaks.js "${BUILD_DIR}"/
 	cp chart.umd.min.js "${BUILD_DIR}"/
-	zip "${FF_DIST_NAME}" ${BUILD_DIR}/*
-	@rm -r "${BUILD_DIR}"
+	cd "${BUILD_DIR}" && zip -r "../${FF_DIST_NAME}" . && cd ..
+	rm -r "${BUILD_DIR}"
 
 chrome: clean
 	mkdir "${BUILD_DIR}"
 	cp manifest-chrome.json "${BUILD_DIR}"/manifest.json
 	cp cricinfo_graph_tweaks.js "${BUILD_DIR}"/
 	cp chart.umd.min.js "${BUILD_DIR}"/
-	zip "${CHROME_DIST_NAME}" ${BUILD_DIR}/*
-	@rm -r "${BUILD_DIR}"
+	cd "${BUILD_DIR}" && zip -r "../${CHROME_DIST_NAME}" . && cd ..
+	rm -r "${BUILD_DIR}"
