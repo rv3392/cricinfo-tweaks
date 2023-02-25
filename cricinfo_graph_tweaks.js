@@ -385,6 +385,7 @@ new MutationObserver(() => {
   if (url !== lastUrl) {
     lastUrl = url;
     if (location.href.includes("://www.espncricinfo.com/cricketers/") && location.href.includes("/bowling-batting-stats")) {
+        discipline.getCurrentDiscipline(document);
         main();
     }
   }
