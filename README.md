@@ -14,8 +14,8 @@ Cricinfo Tweaks is a cross-platform browser addon for Google Chrome and Mozilla 
 ## Installation
 
 Installation is as easy as downloading and installing in your browser.
-Firefox: https://addons.mozilla.org/en-US/firefox/addon/cricinfo-tweaks/
-Chrome: To be added
+- **Firefox**: https://addons.mozilla.org/en-US/firefox/addon/cricinfo-tweaks/
+- **Chrome**: To be added
 
 ### Todos
 
